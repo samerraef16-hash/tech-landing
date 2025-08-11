@@ -1,0 +1,85 @@
+// app/layout.tsx
+import { ThemeProvider } from "@/components/theme-provider"
+import "./globals.css"
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-gray-900 antialiased dark:bg-neutral-950 dark:text-neutral-100 transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
+
+// app/globals.css
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Smooth theme switch helper */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease, fill 250ms ease, stroke 250ms ease, box-shadow 250ms ease;
+}
+
+// components/theme-toggle.tsx
+"use client"
+
+import { useEffect, useState } from "react"
+import { Moon, Sun } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { useTheme } from "next-themes"
+
+export default function ThemeToggle() {
+  const { setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  const isDark = mounted && resolvedTheme === "dark"
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      aria-pressed={isDark}
+      onClick={() => {
+        // Add a temporary transition class to animate the theme change globally
+        const root = document.documentElement
+        root.classList.add("theme-transition")
+        // Flip theme
+        setTheme(isDark ? "light" : "dark")
+        // Remove the class after the animation duration
+        window.setTimeout(() => {
+          root.classList.remove("theme-transition")
+        }, 300)
+      }}
+      disabled={!mounted}
+      className="relative border-neutral-300 transition-colors dark:border-neutral-700 bg-transparent"
+    >
+      <Sun className={`h-[1.1rem] w-[1.1rem] transition-opacity ${isDark ? "opacity-0" : "opacity-100"}`} />
+      <Moon className={`absolute h-[1.1rem] w-[1.1rem] transition-opacity ${isDark ? "opacity-100" : "opacity-0"}`} />
+      <span className="sr-only">{"Toggle theme"}</span>
+    </Button>
+  )
+}
+
+// components/features-section.tsx
+<section id="features" className="container mx-auto scroll-mt-20 px-4 py-16 md:py-24">
+  {/* Content here */}
+</section>
+
+// components/testimonials-section.tsx
+<section id="testimonials" className="bg-neutral-50 py-16 dark:bg-neutral-900 md:py-24 scroll-mt-20">
+  {/* Content here */}
+</section>
+
+// components/pricing-section.tsx
+<section id="pricing" className="container mx-auto scroll-mt-20 px-4 py-16 md:py-24">
+  {/* Content here */}
+</section>
